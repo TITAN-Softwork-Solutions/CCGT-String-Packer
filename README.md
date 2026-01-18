@@ -12,7 +12,6 @@ This approach is designed to reduce the exposure of sensitive strings in static 
 
 * [What CCGT Is](#what-ccgt-is)
 * [How It Works](#how-it-works)
-* [Project Layout](#project-layout)
 * [Getting Started](#getting-started)
 
   * [1) Build the CLI tool](#1-build-the-cli-tool)
@@ -20,13 +19,7 @@ This approach is designed to reduce the exposure of sensitive strings in static 
   * [3) Patch the target binary](#3-patch-the-target-binary)
   * [4) Verify](#4-verify)
 * [CLI Usage](#cli-usage)
-* [What Gets Encrypted](#what-gets-encrypted)
-* [Security & Robustness Notes](#security--robustness-notes)
-* [Operational Guidance](#operational-guidance)
 * [Troubleshooting](#troubleshooting)
-* [Limitations](#limitations)
-* [How It’s Made](#how-its-made)
-* [License](#license)
 
 ---
 
