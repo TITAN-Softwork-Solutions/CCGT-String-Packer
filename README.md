@@ -73,14 +73,18 @@ This approach is designed to reduce the exposure of sensitive strings in static 
 
 3. **Encrypt in-place**
 
-   * algorithm: **ChaCha20**
+   * algorithm: **ChaCha20-Poly1305 (AEAD)**
    * key: per-binary master key (32 bytes)
    * nonce: derived per region from `(seed, RVA)`
-   * result: the original bytes at each string location are replaced with ciphertext bytes
+   * AAD: region metadata `(RVA, length, seed)`
+   * result:
+
+     * the original bytes at each string location are replaced with ciphertext bytes
+     * a per-region Poly1305 authentication tag is generated
 
 4. **Write metadata**
 
-   * regions list: `{ RVA, length, seed }` for each encrypted block
+   * regions list: `{ RVA, length, seed, tag }` for each encrypted block
    * key material: stored as `frag ^ mask` components in `.ccgtr`
    * metadata is written into the `.ccgtr` section embedded into the target binary
 
@@ -95,10 +99,13 @@ On process start (before `main()`), the runtime:
 
    * computes address from `base + RVA`
    * flips protection to RW via `VirtualProtect`
-   * decrypts with ChaCha20 using matching nonce derivation
+   * verifies and decrypts using ChaCha20-Poly1305
+
+     * authentication covers ciphertext and region metadata
+   * if authentication fails, the region is left encrypted
    * restores original protection
 
-Result: string call sites remain valid and the program runs normally, but the on-disk binary no longer contains plaintext strings.
+Result: string call sites remain valid and the program runs normally, but the on-disk binary no longer contains plaintext strings and unauthorized modification of protected regions is detected at runtime.
 
 ---
 
@@ -117,7 +124,7 @@ Build `ccgt` as a normal console app.
 In the project you want to protect:
 
 1. Add `/include/*h` to your include path (all header files)
-2. Include `/include/ccgt_runtime.h` it in exactly one translation unit (recommended: your main file)
+2. Include `/include/ccgt_runtime.h` it in one translation unit (recommended: your main file)
 
 Example:
 
@@ -198,7 +205,7 @@ Fix:
 
 * Ensure all header files from `/include/` are included in your project
 * Ensure `/include/ccgt_runtime.h` in at least one translation unit that is linked
-* Ensure the compiler/linker didn’t discard itt
+* Ensure the compiler/linker didn’t discard it
 
 ### "metadata section too small for Meta"
 
