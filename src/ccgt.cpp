@@ -15,13 +15,16 @@
 #include <limits>
 #include <unordered_set>
 #include <string_view>
+#include <stdexcept>
+
+#include "../include/ccgt_aead.h"
+#include "../include/ccgt_secure.h"
 
 namespace CCGT::Patcher
 {
     static constexpr uint32_t META_CAPACITY = 4096;
     static constexpr size_t   MASTER_KEY_LEN = 32;
-    static constexpr size_t   NONCE_LEN = 12;
-    static constexpr size_t   CHACHA_BLOCK = 64;
+    static constexpr size_t   TAG_LEN = 16;
 
 #if defined(_MSC_VER)
 #   define CCGT_FORCEINLINE __forceinline
@@ -34,6 +37,7 @@ namespace CCGT::Patcher
         uint32_t rva;
         uint32_t len;
         uint64_t seed;
+        uint8_t  tag[TAG_LEN]; // Poly1305 tag
     };
 
     struct Meta {
@@ -45,7 +49,7 @@ namespace CCGT::Patcher
     };
 #pragma pack(pop)
 
-    static_assert(sizeof(Region) == 16, "Region packing mismatch");
+    static_assert(sizeof(Region) == 32, "Region packing mismatch");
     static_assert(offsetof(Meta, regions) % alignof(uint32_t) == 0, "Meta alignment unexpected");
 
     static CCGT_FORCEINLINE void vlog(const Options& opt, const std::string& s)
@@ -211,105 +215,6 @@ namespace CCGT::Patcher
         return (a0 < b1) && (b0 < a1);
     }
 
-    static CCGT_FORCEINLINE uint32_t rotl32(uint32_t x, int r)
-    {
-        return (x << r) | (x >> (32 - r));
-    }
-
-    static CCGT_FORCEINLINE uint32_t load32_le(const uint8_t* p)
-    {
-        return (uint32_t)p[0]
-            | ((uint32_t)p[1] << 8)
-            | ((uint32_t)p[2] << 16)
-            | ((uint32_t)p[3] << 24);
-    }
-
-    static CCGT_FORCEINLINE void store32_le(uint8_t* p, uint32_t v)
-    {
-        p[0] = (uint8_t)(v);
-        p[1] = (uint8_t)(v >> 8);
-        p[2] = (uint8_t)(v >> 16);
-        p[3] = (uint8_t)(v >> 24);
-    }
-
-    static CCGT_FORCEINLINE void quarter_round(uint32_t& a, uint32_t& b, uint32_t& c, uint32_t& d)
-    {
-        a += b; d ^= a; d = rotl32(d, 16);
-        c += d; b ^= c; b = rotl32(b, 12);
-        a += b; d ^= a; d = rotl32(d, 8);
-        c += d; b ^= c; b = rotl32(b, 7);
-    }
-
-    static CCGT_FORCEINLINE void chacha20_block(uint8_t out64[64], const uint8_t key32[32], uint32_t counter, const uint8_t nonce12[12])
-    {
-        const uint32_t state[16] = {
-            0x61707865u, 0x3320646eu, 0x79622d32u, 0x6b206574u,
-            load32_le(key32 + 0),  load32_le(key32 + 4),  load32_le(key32 + 8),  load32_le(key32 + 12),
-            load32_le(key32 + 16), load32_le(key32 + 20), load32_le(key32 + 24), load32_le(key32 + 28),
-            counter,
-            load32_le(nonce12 + 0), load32_le(nonce12 + 4), load32_le(nonce12 + 8)
-        };
-
-        uint32_t w[16];
-        for (int i = 0; i < 16; ++i) w[i] = state[i];
-
-        for (int i = 0; i < 10; ++i) {
-            quarter_round(w[0], w[4], w[8], w[12]);
-            quarter_round(w[1], w[5], w[9], w[13]);
-            quarter_round(w[2], w[6], w[10], w[14]);
-            quarter_round(w[3], w[7], w[11], w[15]);
-
-            quarter_round(w[0], w[5], w[10], w[15]);
-            quarter_round(w[1], w[6], w[11], w[12]);
-            quarter_round(w[2], w[7], w[8], w[13]);
-            quarter_round(w[3], w[4], w[9], w[14]);
-        }
-
-        for (int i = 0; i < 16; ++i) {
-            const uint32_t v = w[i] + state[i];
-            store32_le(out64 + i * 4, v);
-        }
-    }
-
-    static void chacha20_xor(uint8_t* data, size_t len, const uint8_t key32[32], const uint8_t nonce12[12])
-    {
-        if (!data || len == 0) return;
-
-        uint8_t block[CHACHA_BLOCK];
-        uint32_t counter = 1;
-        size_t off = 0;
-
-        while (off < len) {
-            chacha20_block(block, key32, counter++, nonce12);
-            const size_t n = ((len - off) < CHACHA_BLOCK) ? (len - off) : CHACHA_BLOCK;
-            for (size_t i = 0; i < n; ++i) {
-                data[off + i] ^= block[i];
-            }
-            off += n;
-        }
-
-        SecureZeroMemory(block, sizeof(block));
-    }
-
-    static CCGT_FORCEINLINE uint64_t splitmix64(uint64_t& s)
-    {
-        s += 0x9E3779B97F4A7C15ULL;
-        uint64_t z = s;
-        z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ULL;
-        z = (z ^ (z >> 27)) * 0x94D049BB133111EBULL;
-        return z ^ (z >> 31);
-    }
-
-    static void derive_nonce96(uint8_t nonce12[NONCE_LEN], uint64_t seed, uint32_t rva)
-    {
-        uint64_t x = seed ^ (uint64_t)rva * 0x9E3779B97F4A7C15ULL;
-        const uint64_t a = splitmix64(x);
-        const uint64_t b = splitmix64(x);
-
-        for (int i = 0; i < 8; ++i) nonce12[i] = (uint8_t)(a >> (8 * i));
-        for (int i = 0; i < 4; ++i) nonce12[8 + i] = (uint8_t)(b >> (8 * i));
-    }
-
     Result patch_file(
         const std::filesystem::path& target,
         const std::vector<decltype(scan_strings(std::filesystem::path{}))::value_type > & scanned_strings,
@@ -447,7 +352,7 @@ namespace CCGT::Patcher
         }
 
         if (meta_sec->SizeOfRawData < sizeof(Meta)) {
-            throw std::runtime_error("metadata section too small for Meta");
+            throw std::runtime_error("metadata section too small for Meta (need bigger .ccgtr section)");
         }
 
         if (!range_in_bounds_u64(meta_sec->PointerToRawData, sizeof(Meta), file_sz)) {
@@ -526,10 +431,7 @@ namespace CCGT::Patcher
             if (file_off >= file_sz) { skip("file offset out of bounds"); continue; }
             if (file_off < size_of_headers) { skip("within headers"); continue; }
 
-            if (!seen_offsets.insert(file_off).second) {
-                skip("duplicate file offset");
-                continue;
-            }
+            if (!seen_offsets.insert(file_off).second) { skip("duplicate file offset"); continue; }
 
             const IMAGE_SECTION_HEADER* owner = nullptr;
             for (uint16_t si = 0; si < nsec; ++si) {
@@ -561,9 +463,15 @@ namespace CCGT::Patcher
             }
 
             if (crypto_len64 == 0) { skip("crypto_len=0"); continue; }
-            if (crypto_len64 > (std::numeric_limits<uint32_t>::max)()) { skip("crypto_len exceeds u32"); continue; }
+            if (crypto_len64 > (std::numeric_limits<uint32_t>::max)()) {
+                skip("crypto_len exceeds u32");
+                continue;
+            }
 
-            if (!range_in_bounds_u64(file_off, crypto_len64, file_sz)) { skip("crypto range out of file bounds"); continue; }
+            if (!range_in_bounds_u64(file_off, crypto_len64, file_sz)) {
+                skip("crypto range out of file bounds");
+                continue;
+            }
 
             bool bad = false;
             for (const auto& d : dirs) {
@@ -585,8 +493,7 @@ namespace CCGT::Patcher
                 continue;
             }
 
-            uint8_t nonce12[NONCE_LEN]{};
-            derive_nonce96(nonce12, seed, rva);
+            const uint32_t crypto_len32 = static_cast<uint32_t>(crypto_len64);
 
             if (opt.verbose) {
                 std::ostringstream oss;
@@ -600,17 +507,32 @@ namespace CCGT::Patcher
                 vlog(opt, oss.str());
             }
 
-            chacha20_xor(buf.data() + static_cast<size_t>(file_off),
+            uint8_t aad[16];
+            
+            std::memcpy(aad + 0, &rva, 4);
+            std::memcpy(aad + 4, &crypto_len32, 4);
+            std::memcpy(aad + 8, &seed, 8);
+
+            uint8_t tag[16];
+            ccgt::crypto::seal_chacha20_poly1305_inplace(
+                buf.data() + static_cast<size_t>(file_off),
                 static_cast<size_t>(crypto_len64),
                 master,
-                nonce12);
+                seed,
+                rva,
+                aad,
+                sizeof(aad),
+                tag
+            );
 
             meta.regions[meta.count].rva = rva;
-            meta.regions[meta.count].len = static_cast<uint32_t>(crypto_len64);
+            meta.regions[meta.count].len = crypto_len32;
             meta.regions[meta.count].seed = seed;
+            std::memcpy(meta.regions[meta.count].tag, tag, 16);
             meta.count++;
 
-            SecureZeroMemory(nonce12, sizeof(nonce12));
+            ccgt::crypto::secure_zero(tag, sizeof(tag));
+            ccgt::crypto::secure_zero(aad, sizeof(aad));
         }
 
         const uint64_t meta_raw = static_cast<uint64_t>(meta_sec->PointerToRawData);

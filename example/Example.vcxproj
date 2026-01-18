@@ -19,10 +19,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\ccgt_runtime.h" />
+    <ClCompile Include="..\include\ccgt_aead.cpp" />
+    <ClCompile Include="..\include\ccgt_chacha20.cpp" />
+    <ClCompile Include="..\include\ccgt_nonce.cpp" />
+    <ClCompile Include="..\include\ccgt_poly1305.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClInclude Include="..\include\ccgt_aead.h" />
+    <ClInclude Include="..\include\ccgt_chacha20.h" />
+    <ClInclude Include="..\include\ccgt_endian.h" />
+    <ClInclude Include="..\include\ccgt_nonce.h" />
+    <ClInclude Include="..\include\ccgt_poly1305.h" />
+    <ClInclude Include="..\include\ccgt_runtime.h" />
+    <ClInclude Include="..\include\ccgt_secure.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>

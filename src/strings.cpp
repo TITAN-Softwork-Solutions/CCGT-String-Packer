@@ -62,7 +62,6 @@ std::vector<StringHit> scan_strings(const std::filesystem::path& pe_path) {
             hits.push_back(std::move(hit));
         }
 
-        // advance safely
         i = start + (len ? len + 1 : 1);
     }
 

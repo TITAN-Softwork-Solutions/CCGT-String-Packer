@@ -137,14 +137,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="container\main.cc" />
-    <ClCompile Include="container\ccgt.cpp" />
-    <ClCompile Include="container\strings.cpp" />
+    <ClInclude Include="include\ccgt_aead.h" />
+    <ClInclude Include="include\ccgt_chacha20.h" />
+    <ClInclude Include="include\ccgt_endian.h" />
+    <ClInclude Include="include\ccgt_nonce.h" />
+    <ClInclude Include="include\ccgt_poly1305.h" />
+    <ClInclude Include="include\ccgt_runtime.h" />
+    <ClInclude Include="include\ccgt_secure.h" />
+    <ClInclude Include="src\ccgt.h" />
+    <ClInclude Include="src\strings.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="container\ccgt.h" />
-    <ClInclude Include="container\strings.h" />
-    <ClInclude Include="include\ccgt_runtime.h" />
+    <ClCompile Include="include\ccgt_aead.cpp" />
+    <ClCompile Include="include\ccgt_chacha20.cpp" />
+    <ClCompile Include="include\ccgt_nonce.cpp" />
+    <ClCompile Include="include\ccgt_poly1305.cpp" />
+    <ClCompile Include="src\ccgt.cpp" />
+    <ClCompile Include="src\main.cc" />
+    <ClCompile Include="src\strings.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -116,8 +116,8 @@ Build `ccgt` as a normal console app.
 
 In the project you want to protect:
 
-1. Add `ccgt_runtime.h` to your include path
-2. Include it in exactly one translation unit (recommended: your main file)
+1. Add `/include/*h` to your include path (all header files)
+2. Include `/include/ccgt_runtime.h` it in exactly one translation unit (recommended: your main file)
 
 Example:
 
@@ -192,13 +192,13 @@ notes:
 
 ### "missing metadata section (.ccgtr / ccgt)"
 
-Your target binary does not contain the `.ccgtr` section.
+Your target binary does no contain the `.ccgtr` section.
 
 Fix:
 
-* Ensure `ccgt_runtime.h` is included by the target project
-* Ensure it’s included in at least one translation unit that is linked
-* Ensure the compiler/linker didn’t discard it
+* Ensure all header files from `/include/` are included in your project
+* Ensure `/include/ccgt_runtime.h` in at least one translation unit that is linked
+* Ensure the compiler/linker didn’t discard itt
 
 ### "metadata section too small for Meta"
 

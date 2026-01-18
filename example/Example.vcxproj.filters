@@ -6,11 +6,41 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\include\ccgt_aead.cpp">
+      <Filter>include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ccgt_chacha20.cpp">
+      <Filter>include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ccgt_nonce.cpp">
+      <Filter>include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ccgt_poly1305.cpp">
+      <Filter>include</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\ccgt_aead.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ccgt_chacha20.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ccgt_endian.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ccgt_nonce.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ccgt_poly1305.h">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\ccgt_runtime.h">
       <Filter>include</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClInclude Include="..\include\ccgt_secure.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
