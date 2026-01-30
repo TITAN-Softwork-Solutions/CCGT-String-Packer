@@ -86,6 +86,7 @@ This approach is designed to reduce the exposure of sensitive strings in static 
 
    * regions list: `{ RVA, length, seed, tag }` for each encrypted block
    * key material: stored as `frag ^ mask` components in `.ccgtr`
+   * a signed SHA-256 hash of the on-disk file (signature field zeroed, Authenticode certificate table excluded) is generated and stored in `.ccgtr`
    * metadata is written into the `.ccgtr` section embedded into the target binary
 
 ### Runtime (decrypt step)
@@ -102,10 +103,11 @@ On process start (before `main()`), the runtime:
    * verifies and decrypts using ChaCha20-Poly1305
 
      * authentication covers ciphertext and region metadata
+   * verifies a signed SHA-256 hash of the on-disk file before decryption
    * if authentication fails, the region is left encrypted
    * restores original protection
 
-Result: string call sites remain valid and the program runs normally, but the on-disk binary no longer contains plaintext strings and unauthorized modification of protected regions is detected at runtime.
+Result: string call sites remain valid and the program runs normally, but the on-disk binary no longer contains plaintext strings. Unauthorized file patching (outside the Authenticode certificate table) is detected at runtime.
 
 ---
 
@@ -146,6 +148,12 @@ From the output directory containing your built executable:
 
 ```powershell
 .\ccgt.exe .\<ExeToProtect>.exe
+```
+
+If you see `signing key not configured`, generate keys once and rebuild:
+
+```powershell
+.\ccgt.exe --gen-keys
 ```
 
 ### 4) Verify
