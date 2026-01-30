@@ -4,18 +4,47 @@
 
 #include "strings.h"
 #include "ccgt.h"
+#include "ccgt_keygen.h"
+#include "ccgt_sig_priv.h"
 
 static void usage() {
     std::cerr <<
         "usage:\n"
         "  ccgt <binary.exe> [--scan] [--dry-run] [-v|--verbose] [--min N] [--max N] [--no-backup]\n"
+        "  ccgt --gen-keys\n"
         "\n"
         "notes:\n"
         "  - default action is PATCH (encrypt strings + write meta)\n"
-        "  - --scan prints findings only\n";
+        "  - --scan prints findings only\n"
+        "  - --gen-keys writes a new signing keypair to headers\n";
 }
 
 int main(int argc, char** argv) {
+    bool gen_keys_only = false;
+    for (int i = 1; i < argc; ++i) {
+        if (std::string(argv[i]) == "--gen-keys") {
+            gen_keys_only = true;
+            break;
+        }
+    }
+
+    if (gen_keys_only) {
+        std::string msg;
+        const auto st = CCGT::Keygen::ensure_keys(msg);
+        if (st == CCGT::Keygen::Status::Generated) {
+            std::cout << "keys generated: " << msg << "\n";
+            std::cout << "rebuild protected binaries to embed the public key, then re-run.\n";
+            return 0;
+        }
+        if (st == CCGT::Keygen::Status::AlreadyConfigured) {
+            std::cout << "keys already configured: " << msg << "\n";
+            std::cout << "if your protected binaries were built before keys existed, rebuild them.\n";
+            return 0;
+        }
+        std::cerr << "fatal: key generation failed: " << msg << "\n";
+        return 2;
+    }
+
     if (argc < 2) {
         usage();
         return 1;
@@ -67,6 +96,23 @@ int main(int argc, char** argv) {
             }
             std::cout << "\nTotal strings: " << results.size() << "\n";
             return 0;
+        }
+
+        if (!CCGT::Sig::kPrivateKeyValid && !CCGT::Keygen::private_key_file_exists()) {
+            std::string msg;
+            const auto st = CCGT::Keygen::ensure_keys(msg);
+            if (st == CCGT::Keygen::Status::Generated) {
+                std::cerr << "fatal: signing keys were missing and have been generated.\n";
+                std::cerr << "rebuild protected binaries to embed the public key, then re-run.\n";
+                return 2;
+            }
+            if (st == CCGT::Keygen::Status::AlreadyConfigured) {
+                std::cerr << "fatal: signing keys exist, but this ccgt.exe was built before they were set.\n";
+                std::cerr << "rebuild protected binaries to embed the public key, then re-run.\n";
+                return 2;
+            }
+            std::cerr << "fatal: key generation failed: " << msg << "\n";
+            return 2;
         }
 
         auto pr = CCGT::Patcher::patch_file(target, results, opt);
