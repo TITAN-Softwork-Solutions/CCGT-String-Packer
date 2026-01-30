@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\include\ccgt_aead.cpp">
+      <Filter>include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ccgt_chacha20.cpp">
+      <Filter>include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ccgt_nonce.cpp">
+      <Filter>include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ccgt_poly1305.cpp">
+      <Filter>include</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{436cecb3-f047-4ec3-888a-ba453bc06200}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\ccgt_aead.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ccgt_chacha20.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ccgt_endian.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ccgt_nonce.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ccgt_poly1305.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ccgt_runtime.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ccgt_secure.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ccgt_meta.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ccgt_sig_pub.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
