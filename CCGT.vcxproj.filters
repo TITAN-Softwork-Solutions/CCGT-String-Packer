@@ -13,9 +13,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="container\ccgt_crypto">
-      <UniqueIdentifier>{1a1d2c46-86aa-4397-9309-0e5906911659}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ccgt_runtime.h">
@@ -44,6 +41,15 @@
     </ClInclude>
     <ClInclude Include="include\ccgt_secure.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ccgt_meta.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ccgt_sig_pub.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ccgt_sig_priv.h">
+      <Filter>container</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

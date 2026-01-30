@@ -4,5 +4,5 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="CCGT.vcxproj" Id="c711d620-ed67-4637-9d60-323c4fc79c84" />
-  <Project Path="example/Example.vcxproj" Id="2bf10aa7-5bc1-4498-abfd-7ea8a809498a" />
+  <Project Path="Example Protected Program/Example.vcxproj" Id="2bf10aa7-5bc1-4498-abfd-7ea8a809498a" />
 </Solution>

@@ -140,11 +140,15 @@
     <ClInclude Include="include\ccgt_aead.h" />
     <ClInclude Include="include\ccgt_chacha20.h" />
     <ClInclude Include="include\ccgt_endian.h" />
+    <ClInclude Include="include\ccgt_meta.h" />
     <ClInclude Include="include\ccgt_nonce.h" />
     <ClInclude Include="include\ccgt_poly1305.h" />
     <ClInclude Include="include\ccgt_runtime.h" />
     <ClInclude Include="include\ccgt_secure.h" />
+    <ClInclude Include="include\ccgt_sig_pub.h" />
     <ClInclude Include="src\ccgt.h" />
+    <ClInclude Include="src\ccgt_keygen.h" />
+    <ClInclude Include="src\ccgt_sig_priv.h" />
     <ClInclude Include="src\strings.h" />
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +157,7 @@
     <ClCompile Include="include\ccgt_nonce.cpp" />
     <ClCompile Include="include\ccgt_poly1305.cpp" />
     <ClCompile Include="src\ccgt.cpp" />
+    <ClCompile Include="src\ccgt_keygen.cpp" />
     <ClCompile Include="src\main.cc" />
     <ClCompile Include="src\strings.cpp" />
   </ItemGroup>
