@@ -1,5 +1,7 @@
 # CCGT (Post-build string encryptor)
 
+[![Discord](https://img.shields.io/discord/1240608336005828668?label=TITAN%20Softworks&logo=discord&color=5865F2&style=flat)](https://titansoftwork.com)
+
 CCGT is a **post-build string protection tool** for **Windows x64 Binaries**.
 
 It scans a compiled executable for eligible strings, encrypts them & writes a compact metadata table into a dedicated PE section (`.ccgtr`). At runtime, a lightweight header-only runtime (`ccgt_runtime.h`) decrypts those protected regions back into plaintext **before the program’s code uses them**.
