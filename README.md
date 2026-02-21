@@ -1,14 +1,21 @@
-# CCGT (Post-build string encryptor)
+<h1 align="center">CCGT</h1>
+<p align="center"><b>Post-Build String Encryption for Windows x64 Binaries</b></p>
 
-[![Discord](https://img.shields.io/discord/1240608336005828668?label=TITAN%20Softworks&logo=discord&color=5865F2&style=flat)](https://titansoftwork.com)
+<p align="center">
+  <img src="https://img.shields.io/badge/Language-C%2B%2B20-00599C?logo=c%2B%2B&logoColor=white&style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Crypto-ChaCha20--Poly1305-2E8B57?style=for-the-badge" />
+  <a href="https://titansoftwork.com">
+    <img src="https://img.shields.io/discord/1240608336005828668?label=TITAN%20Softworks&logo=discord&color=5865F2&style=for-the-badge" />
+  </a>
+</p>
 
-CCGT is a **post-build string protection tool** for **Windows x64 Binaries**.
+<p align="center">
+Encrypts eligible string literals inside compiled executables and embeds authenticated metadata in a dedicated <code>.ccgtr</code> PE section.
+</p>
 
-It scans a compiled executable for eligible strings, encrypts them & writes a compact metadata table into a dedicated PE section (`.ccgtr`). At runtime, a lightweight header-only runtime (`ccgt_runtime.h`) decrypts those protected regions back into plaintext **before the program’s code uses them**.
-
-This approach is designed to reduce the exposure of sensitive strings in static analysis workflows (e.g., `strings.exe`, YARA, bulk IOC extraction, and casual RE).
-
----
+<p align="center">
+Post-build patcher · Header-only runtime shim · AEAD-backed region protection · Static analysis friction layer
+</p>
 
 ## Contents
 
