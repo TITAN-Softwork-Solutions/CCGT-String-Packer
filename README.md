@@ -4,8 +4,8 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Language-C%2B%2B20-00599C?logo=c%2B%2B&logoColor=white&style=for-the-badge" />
   <img src="https://img.shields.io/badge/Crypto-ChaCha20--Poly1305-2E8B57?style=for-the-badge" />
-  <a href="https://titansoftwork.com">
-    <img src="https://img.shields.io/discord/1240608336005828668?label=TITAN%20Softworks&logo=discord&color=5865F2&style=for-the-badge" />
+  <a href="https://ryftenius.com">
+    <img src="https://img.shields.io/discord/1240608336005828668?label=RYFTENIUS%20Softworks&logo=discord&color=5865F2&style=for-the-badge" />
   </a>
 </p>
 
